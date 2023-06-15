@@ -5,6 +5,20 @@ import { URL } from "url";
 async function updateTodoOrder(todoOrderCollection, status, order) {
   await todoOrderCollection.updateOne({ status }, { $set: { order } });
 }
+async function createInitialTodoOrder(todoOrderCollection) {
+  const initialStatusOrder = [
+      { status: 'Todo', order: [] },
+      { status: 'In Progress', order: [] },
+      { status: 'Done', order: [] },
+  ];
+
+  for (const statusOrder of initialStatusOrder) {
+      const existingOrder = await todoOrderCollection.findOne({ status: statusOrder.status });
+      if (!existingOrder) {
+          await todoOrderCollection.insertOne(statusOrder);
+      }
+  }
+}
 export async function GET(request) {
   const dbConnection = await connectToDatabase();
   const db = dbConnection.db;
